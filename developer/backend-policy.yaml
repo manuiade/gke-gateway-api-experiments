@@ -1,0 +1,19 @@
+apiVersion: networking.gke.io/v1
+kind: GCPBackendPolicy
+metadata:
+  name: backend-policy
+spec:
+  default:
+    timeoutSec: 40
+    logging:
+      enabled: true
+      sampleRate: 500000 # between 1 and 1000000
+    connectionDraining:
+      drainingTimeoutSec: 60
+    sessionAffinity:
+      type: GENERATED_COOKIE
+      cookieTtlSec: 50
+  targetRef:
+    group: ""
+    kind: Service
+    name: store-v1

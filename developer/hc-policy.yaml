@@ -1,0 +1,26 @@
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: hc-policy
+spec:
+  default:
+    checkIntervalSec: 5
+    timeoutSec: 5
+    healthyThreshold: 3
+    unhealthyThreshold: 3
+    logConfig:
+      enabled: ENABLED
+    config:
+      type: http
+      httpHealthCheck:
+        portSpecification: USE_SERVING_PORT
+        # port: PORT
+        # portName: PORT_NAME
+        # host: HOST
+        # requestPath: REQUEST_PATH
+        # response: RESPONSE
+        # proxyHeader: PROXY_HEADER
+  targetRef:
+    group: ""
+    kind: Service
+    name: store-v1

@@ -1,0 +1,57 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: store-external
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: external-http
+    namespace: gateway
+  hostnames:
+  - DOMAIN
+  rules:
+  - filters:
+    - type: URLRewrite
+      urlRewrite:
+        hostname: internal.DOMAIN
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-Client-Geo-Location
+          value: "{client_region},{client_city}"
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: Strict-Transport-Security
+          value: max-age=63072000
+    backendRefs:
+    - name: store-v1
+      port: 8080
+      weight: 90
+    - name: store-v2
+      port: 8080
+      weight: 10
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /old
+    filters:
+    - type: RequestRedirect
+      requestRedirect:
+        path:
+          type: ReplaceFullPath
+          replaceFullPath: /
+        statusCode: 302
+  - matches:
+    - headers:
+      - name: env
+        value: canary
+    backendRefs:
+    - name: store-v2
+      port: 8080
+  - matches:
+    - path:
+        value: /de
+    backendRefs:
+    - name: store-german
+      port: 8080
