@@ -27,6 +27,7 @@ export CLUSTER=gke-cluster
 export CLUSTER_CONTROL_PLANE_CIDR=172.16.0.0/28
 export CERT_MAP=store-cert-map
 export IP_NAME=lb-ext-ip
+export CLOUD_ARMOR_POLICY=gke-armor
 
 gcloud config set project $PROJECT_ID
 ```
@@ -36,6 +37,7 @@ gcloud config set project $PROJECT_ID
 ```
 sed -i "s/CERT_MAP/$CERT_MAP/g"  platform-admin/gateway.yaml
 sed -i "s/IP_NAME/$IP_NAME/g"  platform-admin/gateway.yaml
+sed -i "s/CLOUD_ARMOR_POLICY/$CLOUD_ARMOR_POLICY/g"  developer/backend-policy.yaml
 sed -i "s/DOMAIN/$DOMAIN/g"  developer/httproute.yaml
 ```
 
@@ -120,6 +122,9 @@ gcloud certificate-manager maps entries create $DOMAIN_NAME \
     --map $CERT_MAP \
     --hostname $DOMAIN \
     --certificates $DOMAIN_NAME
+
+echo $CHALLENGE_NAME
+echo $CHALLENGE_DATA
 ```
 
 ### Create namespaces for gateway and application resources
@@ -142,6 +147,7 @@ kubectl apply -f platform-admin/https-redirect.yaml -n gateway
 ```
 kubectl apply -f developer/app.yaml -n app
 kubectl apply -f developer/httproute.yaml -n app
+kubectl apply -f developer/hc-policy.yaml -n app
 ```
 
 ## Test call (after pointing an A record from LB IP to selected DOMAIN)
@@ -152,6 +158,27 @@ curl https://$DOMAIN -H "env: canary"
 curl https://$DOMAIN/de
 ```
 
+## Cloud Armor test
+
+### Create Cloud Armor policy with deny all rule
+
+```
+gcloud compute security-policies create $CLOUD_ARMOR_POLICY --type CLOUD_ARMOR --global 
+gcloud compute security-policies rules update 2147483647 --action deny-403 --security-policy $CLOUD_ARMOR_POLICY
+```
+
+### Apply security policy to backend service from platform perspective
+
+```
+kubectl apply -f developer/backend-policy.yaml -n app
+```
+
+## Test call (after pointing an A record from LB IP to selected DOMAIN)
+
+```
+curl https://$DOMAIN
+```
+
 ## Cleanup
 
 ### Substitute back variables in YAML files
@@ -159,12 +186,15 @@ curl https://$DOMAIN/de
 ```
 sed -i "s/$CERT_MAP/CERT_MAP/g"  platform-admin/gateway.yaml
 sed -i "s/$IP_NAME/IP_NAME/g"  platform-admin/gateway.yaml
+sed -i "s/$CLOUD_ARMOR_POLICY/CLOUD_ARMOR_POLICY/g"  developer/backend-policy.yaml
 sed -i "s/$DOMAIN/DOMAIN/g"  developer/httproute.yaml
 ```
 
 ### Delete GCP resources
 
 ```
+kubectl delete ns app gateway
+
 gcloud container clusters delete $CLUSTER \
     --zone $ZONE \
     --quiet
@@ -208,4 +238,6 @@ gcloud compute networks subnets delete $SUBNETWORK \
 
 gcloud compute networks delete $NETWORK \
     --quiet
+
+gcloud compute security-policies delete $CLOUD_ARMOR_POLICY --global --quiet
 ```

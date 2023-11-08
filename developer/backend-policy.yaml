@@ -4,6 +4,7 @@ metadata:
   name: backend-policy
 spec:
   default:
+    securityPolicy: CLOUD_ARMOR_POLICY
     timeoutSec: 40
     logging:
       enabled: true

@@ -9,9 +9,9 @@ spec:
     healthyThreshold: 3
     unhealthyThreshold: 3
     logConfig:
-      enabled: ENABLED
+      enabled: true
     config:
-      type: http
+      type: HTTP
       httpHealthCheck:
         portSpecification: USE_SERVING_PORT
         # port: PORT
