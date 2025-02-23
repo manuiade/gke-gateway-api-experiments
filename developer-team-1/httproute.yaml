@@ -1,36 +1,42 @@
 kind: HTTPRoute
-apiVersion: gateway.networking.k8s.io/v1beta1
+apiVersion: gateway.networking.k8s.io/v1
 metadata:
-  name: store-external
+  name: dev-team-1-app
 spec:
   parentRefs:
   - kind: Gateway
     name: external-http
     namespace: gateway
   hostnames:
-  - DOMAIN
+  - FQDN_1
+  # Specify a FQDN not allowed by the Gateway listener will result in an error
   rules:
   - filters:
+    # Sample URL rewrite
     - type: URLRewrite
       urlRewrite:
-        hostname: internal.DOMAIN
+        hostname: internal.FQDN_1
+    # Request header are added by the Load Balancer before reaching the backend
     - type: RequestHeaderModifier
       requestHeaderModifier:
         add:
         - name: X-Client-Geo-Location
           value: "{client_region},{client_city}"
+    # Response header are added by the Load Balancer before returining to the client
     - type: ResponseHeaderModifier
       responseHeaderModifier:
         add:
         - name: Strict-Transport-Security
           value: max-age=63072000
+    # Traffic to backend is send in weighted proportion
     backendRefs:
-    - name: store-v1
+    - name: dev-team-1-app-v1
       port: 8080
       weight: 90
-    - name: store-v2
+    - name: dev-team-1-app-v2
       port: 8080
       weight: 10
+  # Another matching rules which is used to redirect /old URLs to new one
   - matches:
     - path:
         type: PathPrefix
@@ -42,16 +48,11 @@ spec:
           type: ReplaceFullPath
           replaceFullPath: /
         statusCode: 302
+  # Another matching rule that intercepts requests with specific headers and send them to appropriate backend (dark launch pattern)
   - matches:
     - headers:
-      - name: env
-        value: canary
+      - name: version
+        value: dark
     backendRefs:
-    - name: store-v2
-      port: 8080
-  - matches:
-    - path:
-        value: /de
-    backendRefs:
-    - name: store-german
+    - name: dev-team-1-app-dark
       port: 8080

@@ -1,0 +1,13 @@
+kind: ReferenceGrant
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: allow-dev-team-1-reference
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: dev-team-1  # The namespace that wants to reference the service
+  to:
+  - group: ""
+    kind: Service
+    name: dev-team-2-app-ext  # The specific service being referenced

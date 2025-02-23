@@ -1,5 +1,5 @@
 kind: Gateway
-apiVersion: gateway.networking.k8s.io/v1beta1
+apiVersion: gateway.networking.k8s.io/v1
 metadata:
   name: external-http
   annotations:
@@ -7,22 +7,41 @@ metadata:
 spec:
   gatewayClassName: gke-l7-global-external-managed
   listeners:
-  - name: http
+  # Ensures no rules from other namespaces can be bound to this listener, used only for HTTP/S redirect
+  - name: http-redirect
     protocol: HTTP
     port: 80
     allowedRoutes:
       kinds:
       - kind: HTTPRoute
       namespaces:
-        from: Same # Ensures no rules from other namespaces can be bound to this listener (used only for HTTP/S redirect)
-  - name: https
+        from: Same 
+  # HTTPS listener on 443 bound to a specific fqdn that can only be used by dev-team-1
+  - name: https-dev-team-1
+    hostname: FQDN_1
     protocol: HTTPS
     port: 443
     allowedRoutes:
       kinds:
       - kind: HTTPRoute
       namespaces:
-        from: All
+        from: Selector
+        selector:
+          matchLabels:
+            team: dev-team-1
+  # HTTPS listener on 443 bound to a specific fqdn that can only be used by dev-team-2
+  - name: https-dev-team-2
+    hostname: FQDN_2
+    protocol: HTTPS
+    port: 443
+    allowedRoutes:
+      kinds:
+      - kind: HTTPRoute
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            team: dev-team-2
   addresses:
   - type: NamedAddress
     value: IP_NAME

@@ -1,0 +1,20 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1
+metadata:
+  name: dev-team-1-app-ext
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: external-http
+    namespace: gateway
+  hostnames:
+  - FQDN_1
+  rules:
+  - matches:
+    - headers:
+      - name: team
+        value: dev-team-2
+    backendRefs:
+    - name: dev-team-2-app-ext
+      namespace: dev-team-2  # Cross-namespace reference
+      port: 8080

@@ -1,0 +1,17 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1
+metadata:
+  name: dev-team-2-app
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: external-http
+    namespace: gateway
+  hostnames:
+  - FQDN_2
+  # Specify a FQDN not allowed by the Gateway listener will result in an error
+  rules:
+  - backendRefs:
+    - name: dev-team-2-app
+      port: 8080
+      weight: 1

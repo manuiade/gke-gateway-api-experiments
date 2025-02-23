@@ -17,4 +17,4 @@ spec:
   targetRef:
     group: ""
     kind: Service
-    name: store-v1
+    name: dev-team-1-app-dark

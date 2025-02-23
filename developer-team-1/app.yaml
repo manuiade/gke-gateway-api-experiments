@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-team-1-app-v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dev-team-1-app
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: dev-team-1-app
+        version: v1
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          args:
+            - /bin/sh
+            - -c
+            - echo "Dev Team 1 App V1" > /usr/share/nginx/html/index.html && exec nginx -g 'daemon off;'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-team-1-app-v1
+  annotations:
+    networking.gke.io/max-rate-per-endpoint: "100"
+spec:
+  selector:
+    app: dev-team-1-app
+    version: v1
+  ports:
+  - port: 8080
+    targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-team-1-app-v2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dev-team-1-app
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: dev-team-1-app
+        version: v2
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          args:
+            - /bin/sh
+            - -c
+            - echo "Dev Team 1 App V2" > /usr/share/nginx/html/index.html && exec nginx -g 'daemon off;'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-team-1-app-v2
+  annotations:
+    networking.gke.io/max-rate-per-endpoint: "100"
+spec:
+  selector:
+    app: dev-team-1-app
+    version: v2
+  ports:
+  - port: 8080
+    targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-team-1-app-dark
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dev-team-1-app
+      version: dark
+  template:
+    metadata:
+      labels:
+        app: dev-team-1-app
+        version: dark
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          args:
+            - /bin/sh
+            - -c
+            - echo "Dev Team 1 App Dark" > /usr/share/nginx/html/index.html && exec nginx -g 'daemon off;'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-team-1-app-dark
+  annotations:
+    networking.gke.io/max-rate-per-endpoint: "100"
+spec:
+  selector:
+    app: dev-team-1-app
+    version: dark
+  ports:
+  - port: 8080
+    targetPort: 80

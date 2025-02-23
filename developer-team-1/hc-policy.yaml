@@ -4,10 +4,10 @@ metadata:
   name: hc-policy
 spec:
   default:
-    checkIntervalSec: 5
-    timeoutSec: 5
-    healthyThreshold: 3
-    unhealthyThreshold: 3
+    checkIntervalSec: 30
+    timeoutSec: 30
+    healthyThreshold: 2
+    unhealthyThreshold: 5
     logConfig:
       enabled: true
     config:
@@ -23,4 +23,4 @@ spec:
   targetRef:
     group: ""
     kind: Service
-    name: store-v1
+    name: dev-team-1-app-v1
