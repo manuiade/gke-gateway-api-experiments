@@ -29,6 +29,7 @@ export CLUSTER=gke-cluster
 export CLUSTER_CONTROL_PLANE_CIDR=172.16.0.0/28
 export CERT_MAP=cert-map
 export IP_NAME=lb-ext-ip
+export SSL_POLICY=strict-ssl
 export CLOUD_ARMOR_POLICY=gke-armor
 
 gcloud config set project $PROJECT_ID
@@ -41,6 +42,7 @@ sed -i "s/CERT_MAP/$CERT_MAP/g"  platform-admin/gateway.yaml
 sed -i "s/IP_NAME/$IP_NAME/g"  platform-admin/gateway.yaml
 sed -i "s/FQDN_1/$FQDN_1/g"  platform-admin/gateway.yaml
 sed -i "s/FQDN_2/$FQDN_2/g"  platform-admin/gateway.yaml
+sed -i "s/SSL_POLICY/$SSL_POLICY/g" platform-admin/gateway-policy.yaml
 sed -i "s/CLOUD_ARMOR_POLICY/$CLOUD_ARMOR_POLICY/g" platform-admin/backend-policy.yaml
 sed -i "s/FQDN_1/$FQDN_1/g"  developer-team-1/httproute.yaml
 sed -i "s/FQDN_1/$FQDN_1/g"  developer-team-1/cross-ns-httproute.yaml
@@ -253,7 +255,7 @@ kubectl apply -f developer-team-1/hc-policy.yaml -n dev-team-1
 ### Platform Admin: Create strict SSL Policy and apply to Gateway
 
 ```bash
-gcloud compute ssl-policies create strict-ssl \
+gcloud compute ssl-policies create $SSL_POLICY \
     --global \
     --min-tls-version 1.2 \
     --profile RESTRICTED
@@ -300,6 +302,7 @@ sed -i "s/$CERT_MAP/CERT_MAP/g"  platform-admin/gateway.yaml
 sed -i "s/$IP_NAME/IP_NAME/g"  platform-admin/gateway.yaml
 sed -i "s/$FQDN_1/FQDN_1/g"  platform-admin/gateway.yaml
 sed -i "s/$FQDN_2/FQDN_2/g"  platform-admin/gateway.yaml
+sed -i "s/$S$SL_POLICY/SSL_POLICY/g" platform-admin/gateway-policy.yaml
 sed -i "s/$CLOUD_ARMOR_POLICY/CLOUD_ARMOR_POLICY/g"  platform-admin/backend-policy.yaml
 sed -i "s/$FQDN_1/FQDN_1/g"  developer-team-1/httproute.yaml
 sed -i "s/$FQDN_1/FQDN_1/g"  developer-team-1/cross-ns-httproute.yaml
@@ -356,4 +359,6 @@ gcloud compute networks delete $NETWORK \
     --quiet
 
 gcloud compute security-policies delete $CLOUD_ARMOR_POLICY --global --quiet
+
+gcloud compute ssl-policies delete $SSL_POLICY --global --quiet
 ```

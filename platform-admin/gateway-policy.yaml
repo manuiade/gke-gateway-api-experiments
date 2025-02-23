@@ -4,7 +4,7 @@ metadata:
   name: gateway-policy
 spec:
   default:
-    sslPolicy: strict-ssl
+    sslPolicy: SSL_POLICY
   targetRef:
     group: gateway.networking.k8s.io
     kind: Gateway
