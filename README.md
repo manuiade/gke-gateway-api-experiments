@@ -197,7 +197,12 @@ Verify canary deployment result with weighted traffic splitting:
 ```bash
 v1=v2=0
 for i in {1..100}; do
-    [[ $(curl -s https://$FQDN_1) =~ "Dev Team 1 App V1" ]] && ((v1++)) || [[ $(response) =~ "Dev Team 1 App V2" ]] && ((v2++))
+    response=$(curl -s https://$FQDN_1)
+    if [[ $response == "Dev Team 1 App V1" ]]; then
+        ((v1++))
+    elif [[ $response == "Dev Team 1 App V2" ]]; then
+        ((v2++))
+    fi
     echo -ne "\r$i/100"
 done
 printf "\nv1: %d (%.1f%%)\nv2: %d (%.1f%%)\n" $v1 $((v1*100/(v1+v2))) $v2 $((v2*100/(v1+v2)))
