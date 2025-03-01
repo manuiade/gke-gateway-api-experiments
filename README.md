@@ -307,7 +307,7 @@ sed -i "s/$CERT_MAP/CERT_MAP/g"  platform-admin/gateway.yaml
 sed -i "s/$IP_NAME/IP_NAME/g"  platform-admin/gateway.yaml
 sed -i "s/$FQDN_1/FQDN_1/g"  platform-admin/gateway.yaml
 sed -i "s/$FQDN_2/FQDN_2/g"  platform-admin/gateway.yaml
-sed -i "s/$S$SL_POLICY/SSL_POLICY/g" platform-admin/gateway-policy.yaml
+sed -i "s/$SSL_POLICY/SSL_POLICY/g" platform-admin/gateway-policy.yaml
 sed -i "s/$CLOUD_ARMOR_POLICY/CLOUD_ARMOR_POLICY/g"  platform-admin/backend-policy.yaml
 sed -i "s/$FQDN_1/FQDN_1/g"  developer-team-1/httproute.yaml
 sed -i "s/$FQDN_1/FQDN_1/g"  developer-team-1/cross-ns-httproute.yaml
